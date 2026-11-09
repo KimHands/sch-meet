@@ -9,6 +9,12 @@ describe('formatDateWithWeekday', () => {
   it('시간대와 무관하게 같은 날짜를 보여준다', () => {
     expect(formatDateWithWeekday('2026-01-01')).toBe('1월 1일 (목)');
   });
+
+  it('유효하지 않거나 빈 날짜는 안전하게 빈 문자열을 반환한다', () => {
+    expect(formatDateWithWeekday(null)).toBe('');
+    expect(formatDateWithWeekday('')).toBe('');
+    expect(formatDateWithWeekday(undefined)).toBe('');
+  });
 });
 
 describe('formatConfirmedTime', () => {
@@ -24,6 +30,11 @@ describe('formatConfirmedTime', () => {
 
   it('확정 시간이 없으면 미정으로 보여준다', () => {
     expect(formatConfirmedTime(null)).toBe('시간 미정');
+  });
+
+  it('시간 정보가 부분적으로 누락되어도 안전하게 처리한다', () => {
+    expect(formatConfirmedTime({ date: '2026-11-09', start_time: null, end_time: null })).toBe('11월 9일 (월)');
+    expect(formatConfirmedTime({ date: '2026-11-09', start_time: '14:00', end_time: null })).toBe('11월 9일 (월) 14:00');
   });
 });
 

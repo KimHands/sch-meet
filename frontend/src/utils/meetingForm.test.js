@@ -25,6 +25,11 @@ describe('meetingToFormValues', () => {
   it('8명 이상은 하나의 선택지로 묶는다', () => {
     expect(meetingToFormValues({ name: 'x', capacity: 12, duration_minutes: 60 }).capacity).toBe('8명 이상');
   });
+
+  it('빈 객체나 null이 들어와도 기본 폼 값을 반환한다', () => {
+    expect(meetingToFormValues(null).name).toBe('');
+    expect(meetingToFormValues({}).duration).toBe('60');
+  });
 });
 
 describe('capacityToNumber', () => {
@@ -35,5 +40,10 @@ describe('capacityToNumber', () => {
 
   it('8명 넘는 기존 정원은 수정 시 줄이지 않는다', () => {
     expect(capacityToNumber('8명 이상', 12)).toBe(12);
+  });
+
+  it('null이나 빈 문자열 등 비정상 입력 시 currentCapacity를 반환한다', () => {
+    expect(capacityToNumber(null, 4)).toBe(4);
+    expect(capacityToNumber('', 0)).toBe(0);
   });
 });

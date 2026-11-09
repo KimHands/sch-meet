@@ -22,19 +22,29 @@ function purposeFields(purpose) {
 }
 
 export function meetingToFormValues(meeting) {
-  const capacity = meeting.capacity >= MAX_CAPACITY_OPTION ? '8명 이상' : `${meeting.capacity}명`;
+  if (!meeting) return { ...EMPTY_MEETING_FORM };
+  const capacityNum = Number(meeting.capacity);
+  const capacity = !isNaN(capacityNum) && capacityNum > 0
+    ? (capacityNum >= MAX_CAPACITY_OPTION ? '8명 이상' : `${capacityNum}명`)
+    : '';
+  const duration = meeting.duration_minutes != null
+    ? String(meeting.duration_minutes)
+    : String(DEFAULT_DURATION_MINUTES);
   return {
     name: meeting.name ?? '',
     ...purposeFields(meeting.purpose),
     time: meeting.desired_time ?? '',
     place: meeting.desired_location ?? '',
     capacity,
-    duration: String(meeting.duration_minutes),
+    duration,
   };
 }
 
 // "8명 이상"은 8로 읽되, 이미 8명을 넘게 잡은 모임은 수정한다고 줄이지 않는다
 export function capacityToNumber(capacityOption, currentCapacity = 0) {
-  const selected = parseInt(capacityOption.replace(/[^0-9]/g, ''), 10);
+  if (!capacityOption || typeof capacityOption !== 'string') return currentCapacity || 0;
+  const digits = capacityOption.replace(/[^0-9]/g, '');
+  if (!digits) return currentCapacity || 0;
+  const selected = parseInt(digits, 10);
   return selected === MAX_CAPACITY_OPTION ? Math.max(selected, currentCapacity) : selected;
 }

@@ -4,16 +4,23 @@ const STATUS_LABELS = { OPEN: '조율 중', CONFIRMED: '확정', CLOSED: '종료
 
 // 'YYYY-MM-DD'를 UTC로 읽는 new Date(문자열)의 시간대 밀림을 피한다
 export function formatDateWithWeekday(isoDate) {
-  const [year, month, day] = isoDate.split('-').map(Number);
+  if (!isoDate || typeof isoDate !== 'string') return '';
+  const parts = isoDate.split('-');
+  if (parts.length < 3) return isoDate;
+  const [year, month, day] = parts.map(Number);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return isoDate;
   const weekday = WEEKDAY_LABELS[new Date(year, month - 1, day).getDay()];
+  if (!weekday) return isoDate;
   return `${month}월 ${day}일 (${weekday})`;
 }
 
 export function formatConfirmedTime(confirmedTime) {
   if (!confirmedTime) return '시간 미정';
   const { date, day, start_time: start, end_time: end } = confirmedTime;
-  const when = date ? formatDateWithWeekday(date) : `${DAY_CODE_LABELS[day] ?? day}요일`;
-  return `${when} ${start} ~ ${end}`;
+  if (!start && !end) return date ? formatDateWithWeekday(date) : '시간 미정';
+  const when = date ? formatDateWithWeekday(date) : day ? `${DAY_CODE_LABELS[day] ?? day}요일` : '';
+  const timeRange = start && end ? `${start} ~ ${end}` : (start || end || '');
+  return when ? `${when} ${timeRange}`.trim() : timeRange || '시간 미정';
 }
 
 export function meetingStatusLabel(status) {
